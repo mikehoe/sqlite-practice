@@ -18,9 +18,21 @@ if __name__ == '__main__':
             )
 
             connection.execute(
-                "INSERT INTO tasks (title) VALUES (?)",
+                "INSERT INTO tasks (title) VALUES (?);",
                 ("Learn SQLite",)
             )
+
+            connection.execute(
+                "UPDATE tasks SET completed=? WHERE id=?;",
+                (1, 1)
+            )
+
+            cursor = connection.execute(
+                "DELETE FROM tasks WHERE id=?;",
+                (2, )
+            )
+
+            print(cursor.rowcount == 1)
 
         cursor = connection.execute(
             "SELECT id, title, completed FROM tasks ORDER BY id;"
