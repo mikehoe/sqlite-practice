@@ -16,5 +16,17 @@ if __name__ == '__main__':
                 );
                 """
             )
+
+            connection.execute(
+                "INSERT INTO tasks (title) VALUES (?)",
+                ("Learn SQLite",)
+            )
+
+        cursor = connection.execute(
+            "SELECT id, title, completed FROM tasks ORDER BY id;"
+        )
+
+        for row in cursor:
+            print(row)
     finally:
         connection.close()
