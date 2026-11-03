@@ -5,22 +5,22 @@ def delete_task(
         connection: sqlite3.Connection,
         task_id: int
 ) -> bool:
-    _cursor = connection.execute(
+    cursor = connection.execute(
         "DELETE FROM tasks WHERE id=?;",
         (task_id,)
     )
 
-    return _cursor.rowcount == 1
+    return cursor.rowcount == 1
 
 
-if __name__ == '__main__':
+def main() -> None:
     print('sqlite test')
 
-    db_connection = sqlite3.connect("practice.db")
+    connection = sqlite3.connect("practice.db")
 
     try:
-        with db_connection:
-            db_connection.execute(
+        with connection:
+            connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS tasks (
                     id INTEGER PRIMARY KEY,
@@ -30,23 +30,29 @@ if __name__ == '__main__':
                 """
             )
 
-            db_connection.execute(
+            connection.execute(
                 "INSERT INTO tasks (title) VALUES (?);",
                 ("Learn SQLite",)
             )
 
-            db_connection.execute(
+            connection.execute(
                 "UPDATE tasks SET completed=? WHERE id=?;",
                 (1, 1)
             )
+            task_id = 2
+            deleted = delete_task(connection, task_id)
+            print(f"Task {task_id} {'was' if deleted else 'was not'} deleted.")
 
-            delete_task(db_connection, 2)
-
-        cursor = db_connection.execute(
+        cursor = connection.execute(
             "SELECT id, title, completed FROM tasks ORDER BY id;"
         )
 
         for row in cursor:
             print(row)
+
     finally:
-        db_connection.close()
+        connection.close()
+
+
+if __name__ == '__main__':
+    main()
