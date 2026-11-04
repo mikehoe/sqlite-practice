@@ -23,6 +23,13 @@ def get_task(connection: sqlite3.Connection,
     return cursor.fetchone()
 
 
+def list_tasks(connection: sqlite3.Connection) -> list[tuple[int, str, int]]:
+    cursor = connection.execute(
+        "SELECT id, title, completed FROM tasks ORDER BY id;"
+    )
+    return cursor.fetchall()
+
+
 def delete_task(connection: sqlite3.Connection, task_id: int) -> bool:
     cursor = connection.execute(
         "DELETE FROM tasks WHERE id=?;",
@@ -62,12 +69,10 @@ def main() -> None:
             deleted = delete_task(connection, task_id)
             print(f"Task {task_id} {'was' if deleted else 'was not'} deleted.")
 
-        cursor = connection.execute(
-            "SELECT id, title, completed FROM tasks ORDER BY id;"
-        )
+        tasks = list_tasks(connection)
 
-        for row in cursor:
-            print(row)
+        for task in tasks:
+            print(task)
 
     finally:
         connection.close()
