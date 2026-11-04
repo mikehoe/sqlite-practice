@@ -1,11 +1,17 @@
 import sqlite3
 
 
-def create_task(connection: sqlite3.Connection, title: str) -> int:
+def validate_task_title(title: str) -> str:
     title = title.strip()
+
     if not title:
         raise ValueError("Title cannot be empty")
 
+    return title
+
+
+def create_task(connection: sqlite3.Connection, title: str) -> int:
+    title = validate_task_title(title)
     cursor = connection.execute(
         "INSERT INTO tasks (title) VALUES (?)",
         (title,)
@@ -36,6 +42,7 @@ def list_tasks(connection: sqlite3.Connection) -> list[tuple[int, str, int]]:
 
 def update_task(connection: sqlite3.Connection, task_id: int,
                 new_title: str) -> bool:
+    new_title = validate_task_title(new_title)
     cursor = connection.execute(
         "UPDATE tasks SET title=? WHERE id=?;",
         (new_title, task_id)
