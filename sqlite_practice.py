@@ -1,10 +1,20 @@
 import sqlite3
 
 
-def delete_task(
-        connection: sqlite3.Connection,
-        task_id: int
-) -> bool:
+def create_task(connection: sqlite3.Connection, title: str) -> int:
+    cursor = connection.execute(
+        "INSERT INTO tasks (title) VALUES (?)",
+        (title,)
+    )
+    task_id = cursor.lastrowid
+
+    if task_id is None:
+        raise RuntimeError("Failed to retrieve the new task ID")
+
+    return task_id
+
+
+def delete_task(connection: sqlite3.Connection, task_id: int) -> bool:
     cursor = connection.execute(
         "DELETE FROM tasks WHERE id=?;",
         (task_id,)
@@ -30,15 +40,15 @@ def main() -> None:
                 """
             )
 
-            connection.execute(
-                "INSERT INTO tasks (title) VALUES (?);",
-                ("Learn SQLite",)
-            )
+            task_title = "Learn SQLite"
+            task_id = create_task(connection, task_title)
+            print(f"Task '{task_title}' with id={task_id} was created.")
 
             connection.execute(
                 "UPDATE tasks SET completed=? WHERE id=?;",
                 (1, 1)
             )
+
             task_id = 2
             deleted = delete_task(connection, task_id)
             print(f"Task {task_id} {'was' if deleted else 'was not'} deleted.")
