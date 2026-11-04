@@ -30,6 +30,15 @@ def list_tasks(connection: sqlite3.Connection) -> list[tuple[int, str, int]]:
     return cursor.fetchall()
 
 
+def update_task(connection: sqlite3.Connection, task_id: int,
+                new_title: str) -> bool:
+    cursor = connection.execute(
+        "UPDATE tasks SET title=? WHERE id=?;",
+        (new_title, task_id)
+    )
+
+    return cursor.rowcount == 1
+
 def delete_task(connection: sqlite3.Connection, task_id: int) -> bool:
     cursor = connection.execute(
         "DELETE FROM tasks WHERE id=?;",
@@ -60,10 +69,12 @@ def main() -> None:
             task_id = create_task(connection, task_title)
             print(f"Task '{task_title}' with id={task_id} was created.")
 
-            connection.execute(
-                "UPDATE tasks SET completed=? WHERE id=?;",
-                (1, 1)
-            )
+            new_title = "Test SQLite"
+            updated = update_task(connection, task_id, new_title)
+            if updated:
+                print(f"Task {task_title} was updated to {new_title}.")
+            else:
+                print(f"Task {task_title} was not updated.")
 
             task_id = 2
             deleted = delete_task(connection, task_id)
