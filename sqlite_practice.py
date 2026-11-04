@@ -2,6 +2,10 @@ import sqlite3
 
 
 def create_task(connection: sqlite3.Connection, title: str) -> int:
+    title = title.strip()
+    if not title:
+        raise ValueError("Title cannot be empty")
+
     cursor = connection.execute(
         "INSERT INTO tasks (title) VALUES (?)",
         (title,)
