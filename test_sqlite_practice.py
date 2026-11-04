@@ -97,6 +97,25 @@ def test_update_nonexistent_task(connection: sqlite3.Connection) -> None:
     assert update_task(connection, 999, new_title="Run tests") is False
 
 
+def test_update_task_strips_whitespace(connection: sqlite3.Connection) -> None:
+    task_id = create_task(connection, "  Learn SQLite  ")
+    assert update_task(connection, task_id, "  Run tests  ")
+
+    task = get_task(connection, task_id)
+    assert task is not None
+    assert task[1] == "Run tests"
+
+
+@pytest.mark.parametrize("title", ["", " ", "   ", "\t", "\n"])
+def test_update_task_rejects_empty_title(connection: sqlite3.Connection,
+                                         title: str) -> None:
+    task_id = create_task(connection, "  Learn SQLite  ")
+    with pytest.raises(ValueError, match="Title cannot be empty"):
+        update_task(connection, task_id, title)
+
+    assert get_task(connection, task_id) == (task_id, "Learn SQLite", 0)
+
+
 def test_delete_existing_task(connection: sqlite3.Connection) -> None:
     connection.execute(
         "INSERT INTO tasks (title) VALUES (?);",
