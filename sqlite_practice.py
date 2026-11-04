@@ -14,6 +14,15 @@ def create_task(connection: sqlite3.Connection, title: str) -> int:
     return task_id
 
 
+def get_task(connection: sqlite3.Connection,
+             task_id: int) -> tuple[int, str, int] | None:
+    cursor = connection.execute(
+        "SELECT id, title, completed FROM tasks WHERE id=?;",
+        (task_id,)
+    )
+    return cursor.fetchone()
+
+
 def delete_task(connection: sqlite3.Connection, task_id: int) -> bool:
     cursor = connection.execute(
         "DELETE FROM tasks WHERE id=?;",
