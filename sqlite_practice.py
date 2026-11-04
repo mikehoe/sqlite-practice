@@ -39,6 +39,7 @@ def update_task(connection: sqlite3.Connection, task_id: int,
 
     return cursor.rowcount == 1
 
+
 def delete_task(connection: sqlite3.Connection, task_id: int) -> bool:
     cursor = connection.execute(
         "DELETE FROM tasks WHERE id=?;",
