@@ -71,7 +71,7 @@ def main() -> None:
                 """
                 CREATE TABLE IF NOT EXISTS tasks (
                     id INTEGER PRIMARY KEY,
-                    title TEXT NOT NULL,
+                    title TEXT NOT NULL CHECK (length(trim(title)) > 0),
                     completed INTEGER NOT NULL DEFAULT 0
                 );
                 """

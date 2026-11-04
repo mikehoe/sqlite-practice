@@ -14,7 +14,7 @@ def connection() -> Iterator[sqlite3.Connection]:
             """
             CREATE TABLE IF NOT EXISTS tasks (
                 id INTEGER PRIMARY KEY,
-                title TEXT NOT NULL,
+                title TEXT NOT NULL CHECK (length(trim(title)) > 0),
                 completed INTEGER NOT NULL DEFAULT 0
             );
             """
@@ -47,6 +47,15 @@ def test_create_task_rejects_empty_title(connection: sqlite3.Connection,
                                          title: str) -> None:
     with pytest.raises(ValueError, match="Title cannot be empty"):
         create_task(connection, title)
+
+    assert list_tasks(connection) == []
+
+
+def test_direct_sql_insert_with_whitespaces(connection: sqlite3.Connection) -> None:
+    with pytest.raises(sqlite3.IntegrityError):
+        connection.execute(
+            "INSERT INTO tasks (title) VALUES (?);",
+            ("   ",))
 
     assert list_tasks(connection) == []
 
