@@ -3,7 +3,7 @@ from collections.abc import Iterator
 
 import pytest
 
-from sqlite_practice import delete_task
+from sqlite_practice import delete_task, create_task
 
 
 @pytest.fixture
@@ -22,6 +22,17 @@ def connection() -> Iterator[sqlite3.Connection]:
         yield db
     finally:
         db.close()
+
+
+def test_create_task(connection: sqlite3.Connection) -> None:
+    task_id = create_task(connection, "Learn SQLite")
+
+    assert task_id == 1
+    cursor = connection.execute(
+        "SELECT id, title, completed FROM tasks WHERE id = ?",
+        (task_id,)
+    )
+    assert cursor.fetchone() == (task_id, "Learn SQLite", 0)
 
 
 def test_delete_existing_task(connection: sqlite3.Connection) -> None:
