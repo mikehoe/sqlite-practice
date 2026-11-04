@@ -3,7 +3,7 @@ from collections.abc import Iterator
 
 import pytest
 
-from sqlite_practice import delete_task, create_task, get_task
+from sqlite_practice import delete_task, create_task, get_task, list_tasks
 
 
 @pytest.fixture
@@ -50,6 +50,22 @@ def test_get_existing_task(connection: sqlite3.Connection) -> None:
 def test_get_nonexistent_task(connection: sqlite3.Connection) -> None:
     task = get_task(connection, 999)
     assert task is None
+
+
+def test_list_tasks_empty(connection: sqlite3.Connection) -> None:
+    assert list_tasks(connection) == []
+
+
+def test_list_tasks_ordered_by_id(connection: sqlite3.Connection) -> None:
+    create_task(connection, "Learn SQLite")
+    create_task(connection, "Learn Python")
+    create_task(connection, "Run tests")
+
+    assert list_tasks(connection) == [
+        (1, "Learn SQLite", 0),
+        (2, "Learn Python", 0),
+        (3, "Run tests", 0)
+    ]
 
 
 def test_delete_existing_task(connection: sqlite3.Connection) -> None:
