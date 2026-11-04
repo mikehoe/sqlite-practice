@@ -35,6 +35,22 @@ def test_create_task(connection: sqlite3.Connection) -> None:
     assert cursor.fetchone() == (task_id, "Learn SQLite", 0)
 
 
+def test_create_task_strips_whitespace(connection: sqlite3.Connection) -> None:
+    task_id = create_task(connection, "  Learn SQLite  ")
+    task = get_task(connection, task_id)
+    assert task is not None
+    assert task[1] == "Learn SQLite"
+
+
+@pytest.mark.parametrize("title", ["", " ", "   ", "\t", "\n"])
+def test_create_task_rejects_empty_title(connection: sqlite3.Connection,
+                                         title: str) -> None:
+    with pytest.raises(ValueError, match="Title cannot be empty"):
+        create_task(connection, title)
+
+    assert list_tasks(connection) == []
+
+
 def test_get_existing_task(connection: sqlite3.Connection) -> None:
     created_task_id = create_task(connection, "Learn SQLite")
 
