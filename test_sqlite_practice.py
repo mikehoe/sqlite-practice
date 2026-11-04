@@ -3,7 +3,7 @@ from collections.abc import Iterator
 
 import pytest
 
-from sqlite_practice import delete_task, create_task
+from sqlite_practice import delete_task, create_task, get_task
 
 
 @pytest.fixture
@@ -33,6 +33,23 @@ def test_create_task(connection: sqlite3.Connection) -> None:
         (task_id,)
     )
     assert cursor.fetchone() == (task_id, "Learn SQLite", 0)
+
+
+def test_get_existing_task(connection: sqlite3.Connection) -> None:
+    created_task_id = create_task(connection, "Learn SQLite")
+
+    task = get_task(connection, created_task_id)
+    assert task is not None
+
+    retrieved_task_id, task_title, task_completed = task
+    assert retrieved_task_id == created_task_id
+    assert task_title == "Learn SQLite"
+    assert task_completed == 0
+
+
+def test_get_nonexistent_task(connection: sqlite3.Connection) -> None:
+    task = get_task(connection, 999)
+    assert task is None
 
 
 def test_delete_existing_task(connection: sqlite3.Connection) -> None:
